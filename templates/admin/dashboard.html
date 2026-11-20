@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-header">
+  <div class="dashboard-title">
+    <h2>Administrator Control Dashboard ⚙️</h2>
+    <p>Manage fresher job postings, define required skill criteria, and review candidate registrations</p>
+  </div>
+  <div style="display: flex; gap: 0.75rem;">
+    <a href="{{ url_for('admin_create_job') }}" class="btn btn-primary">
+      + Post New Fresher Job
+    </a>
+    <a href="{{ url_for('admin_manage_jobs') }}" class="btn btn-secondary">
+      Manage Listings
+    </a>
+  </div>
+</div>
+
+<!-- Metrics Counters -->
+<section class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon primary">💼</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ stats.total_jobs }}</div>
+      <div class="stat-label">Total Job Postings</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon success">✅</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ stats.active_jobs }}</div>
+      <div class="stat-label">Active Published Jobs</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon warning">🎓</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ stats.total_students }}</div>
+      <div class="stat-label">Registered Students</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon secondary">🔖</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ stats.total_bookmarks }}</div>
+      <div class="stat-label">Student Job Bookmarks</div>
+    </div>
+  </div>
+</section>
+
+<!-- Job Listings Table -->
+<section class="card" style="margin-bottom: 2rem;">
+  <div class="card-header">
+    <div>
+      <h3 class="card-title">Recent Job Postings &amp; Required Skill Criteria</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">
+        Updates to required skill tags instantly reflect in all student matching score calculations.
+      </p>
+    </div>
+    <a href="{{ url_for('admin_manage_jobs') }}" class="btn btn-outline-primary btn-sm">
+      View All ({{ stats.total_jobs }}) &rarr;
+    </a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Job Title</th>
+          <th>Company &amp; Location</th>
+          <th>Category</th>
+          <th>Required Skills Tags</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in jobs %}
+          <tr>
+            <td><strong>#{{ job.id }}</strong></td>
+            <td>
+              <div style="font-weight: 700; color: var(--text-main);">{{ job.title }}</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">{{ job.job_type }} &bull; {{ job.experience_req }}</div>
+            </td>
+            <td>
+              <div>{{ job.company }}</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">{{ job.location }}</div>
+            </td>
+            <td><span class="badge badge-neutral">{{ job.role_category }}</span></td>
+            <td style="max-width: 280px;">
+              <div class="skill-tags">
+                {% for s in job.required_skills.split(',') %}
+                  <span class="badge badge-primary" style="font-size: 0.72rem;">{{ s.strip() }}</span>
+                {% endfor %}
+              </div>
+            </td>
+            <td>
+              {% if job.is_active %}
+                <span class="badge badge-success">Active</span>
+              {% else %}
+                <span class="badge badge-danger">Inactive</span>
+              {% endif %}
+            </td>
+            <td>
+              <div style="display: flex; gap: 0.4rem;">
+                <a href="{{ url_for('admin_edit_job', job_id=job.id) }}" class="btn btn-secondary btn-sm" title="Edit Job & Skill Tags">
+                  ✏️ Edit
+                </a>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Registered Students Table -->
+<section class="card">
+  <div class="card-header">
+    <div>
+      <h3 class="card-title">Recently Registered Candidates</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">
+        Review student academic profiles and skill declarations
+      </p>
+    </div>
+    <a href="{{ url_for('admin_students') }}" class="btn btn-outline-primary btn-sm">
+      View All Students &rarr;
+    </a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Student Name</th>
+          <th>Email Address</th>
+          <th>Academic Degree</th>
+          <th>Target Role</th>
+          <th>Declared Skills</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in students %}
+          <tr>
+            <td>#{{ s.id }}</td>
+            <td><strong>{{ s.full_name }}</strong></td>
+            <td>{{ s.email }}</td>
+            <td>
+              <div>{{ s.degree or 'N/A' }}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">{{ s.college or '' }}</div>
+            </td>
+            <td><span class="badge badge-neutral">{{ s.target_role or 'General' }}</span></td>
+            <td style="max-width: 250px;">
+              {% if s.skills %}
+                <div class="skill-tags">
+                  {% for sk in s.skills.split(',') %}
+                    {% if sk.strip() %}
+                      <span class="badge badge-success" style="font-size: 0.72rem;">{{ sk.strip() }}</span>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              {% else %}
+                <span style="font-size: 0.8rem; color: var(--text-muted);">None entered</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

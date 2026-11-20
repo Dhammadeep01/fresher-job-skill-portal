@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-header">
+  <div class="dashboard-title">
+    <h2>Bookmarked &amp; Saved Jobs</h2>
+    <p>Track your saved fresher job listings and monitor your current qualification alignment</p>
+  </div>
+  <a href="{{ url_for('student_jobs') }}" class="btn btn-secondary btn-sm">
+    &larr; Back to All Jobs
+  </a>
+</div>
+
+{% if jobs %}
+  <div class="job-grid">
+    {% for job in jobs %}
+      <div class="job-card">
+        <div>
+          <div class="job-card-header">
+            <div>
+              <div class="job-title">{{ job.title }}</div>
+              <div class="job-company">🏢 {{ job.company }}</div>
+              <div class="job-location">📍 {{ job.location }}</div>
+            </div>
+            <span class="badge badge-neutral">{{ job.role_category }}</span>
+          </div>
+
+          <!-- Match Score Box -->
+          <div class="match-preview-box">
+            <div class="match-preview-header">
+              <span>Current Match:</span>
+              <span class="match-score-badge {{ job.badge_class }}">
+                {{ job.match_score }}% Match
+              </span>
+            </div>
+            <div class="progress-container">
+              <div class="progress-bar {{ job.badge_class }}" style="width: {{ job.match_score }}%;"></div>
+            </div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.3rem;">
+              {{ job.summary_text }}
+            </div>
+          </div>
+
+          <div style="margin-top: 0.75rem; font-size: 0.8rem;">
+            {% if job.missing_skills %}
+              <div style="color: var(--danger-dark); font-weight: 600; margin-bottom: 0.3rem;">
+                Missing Skills ({{ job.missing_skills|length }}):
+              </div>
+              <div class="skill-tags">
+                {% for s in job.missing_skills %}
+                  <span class="badge badge-danger">✗ {{ s }}</span>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div style="color: var(--success); font-weight: 600;">
+                ✓ 100% Eligible! All technical skills matched.
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="job-card-actions">
+          <a href="{{ url_for('student_job_detail', job_id=job.id) }}" class="btn btn-primary btn-sm" style="flex: 1;">
+            View Match &amp; Guidance &rarr;
+          </a>
+          <form method="POST" action="{{ url_for('student_toggle_save_job', job_id=job.id) }}">
+            <button type="submit" class="btn btn-danger btn-sm" title="Remove from Saved">
+              Remove
+            </button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card" style="text-align: center; padding: 3rem;">
+    <div style="font-size: 3rem; margin-bottom: 0.5rem;">🔖</div>
+    <h3>No Bookmarked Jobs Yet</h3>
+    <p style="color: var(--text-muted); margin: 0.5rem 0 1.5rem 0;">
+      Browse job vacancies and click the bookmark button to save them here for quick access.
+    </p>
+    <a href="{{ url_for('student_jobs') }}" class="btn btn-primary">Explore Jobs</a>
+  </div>
+{% endif %}
+{% endblock %}

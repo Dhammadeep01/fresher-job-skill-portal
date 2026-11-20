@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Circle -->
+  <rect width="64" height="64" rx="16" fill="url(#grad)"/>
+  
+  <!-- Graduation Cap Top -->
+  <polygon points="32,16 52,25 32,34 12,25" fill="#FFFFFF"/>
+  <polygon points="32,26 44,21 32,16 20,21" fill="#E0E7FF"/>
+  
+  <!-- Cap Lower Skull Base -->
+  <path d="M20,28.6 L20,38 C20,43 44,43 44,38 L44,28.6 L32,34 Z" fill="#EEF2FF"/>
+  
+  <!-- Tassel -->
+  <path d="M50,26 L52,38 L48,39 L50,26" fill="#FBBF24"/>
+  <circle cx="50" cy="40" r="2.5" fill="#F59E0B"/>
+  
+  <!-- Small Star / Sparkle of Guidance -->
+  <path d="M32,48 L33.5,52 L37.5,53.5 L33.5,55 L32,59 L30.5,55 L26.5,53.5 L30.5,52 Z" fill="#FBBF24"/>
+</svg>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title ~ ' | ' if title else '' }}Fresher Job &amp; Skill Guidance Portal</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/logo.svg') }}">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="{{ url_for('index') }}" class="brand">
+        <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Logo">
+        <div>
+          <div class="brand-title">Fresher Job &amp; Skill Portal</div>
+          <div class="brand-sub">Rule-Based Career Guidance</div>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="{{ url_for('index') }}" class="nav-link">Home</a></li>
+        
+        {% if is_authenticated %}
+          {% if is_student %}
+            <li><a href="{{ url_for('student_dashboard') }}" class="nav-link">Dashboard</a></li>
+            <li><a href="{{ url_for('student_jobs') }}" class="nav-link">Job Suggestions</a></li>
+            <li><a href="{{ url_for('student_skill_guidance') }}" class="nav-link">Skill Guidance</a></li>
+            <li><a href="{{ url_for('student_saved_jobs') }}" class="nav-link">Saved Jobs</a></li>
+            <li><a href="{{ url_for('student_profile') }}" class="nav-link">My Profile</a></li>
+            <li>
+              <span class="user-badge student">
+                🎓 {{ current_user['full_name'].split(' ')[0] }}
+              </span>
+            </li>
+          {% elif is_admin %}
+            <li><a href="{{ url_for('admin_dashboard') }}" class="nav-link">Admin Dashboard</a></li>
+            <li><a href="{{ url_for('admin_manage_jobs') }}" class="nav-link">Manage Jobs</a></li>
+            <li><a href="{{ url_for('admin_students') }}" class="nav-link">Students</a></li>
+            <li>
+              <span class="user-badge admin">
+                ⚙️ Admin
+              </span>
+            </li>
+          {% endif %}
+          <li><a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm">Log Out</a></li>
+        {% else %}
+          <li><a href="{{ url_for('login') }}" class="btn btn-secondary btn-sm">Sign In</a></li>
+          <li><a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Student Register</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <!-- Flash Notifications -->
+    <div class="flash-container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              <span>{{ message }}</span>
+              <button type="button" class="alert-close">&times;</button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+
+    {% if not_found %}
+      <div class="card" style="text-align: center; padding: 3rem;">
+        <h2>404 - Page Not Found</h2>
+        <p style="color: var(--text-muted); margin: 1rem 0;">The page you are looking for does not exist or has been moved.</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Return to Home</a>
+      </div>
+    {% elif server_error %}
+      <div class="card" style="text-align: center; padding: 3rem;">
+        <h2>500 - Application Error</h2>
+        <p style="color: var(--text-muted); margin: 1rem 0;">An unexpected internal error occurred. Please try again.</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Return to Home</a>
+      </div>
+    {% else %}
+      {% block content %}{% endblock %}
+    {% endif %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-credits">
+        <strong>Fresher Job &amp; Skill Guidance Portal</strong> — A Web-Based Application
+      </div>
+      <div class="footer-sub">
+        MCA Mini Project | Submitted by <strong>Dhammadip Harshabodh Shirsath</strong> (Roll No: 47) | Under Guidance of <strong>Mrs. Sandhya Kapil Thakkar</strong>
+      </div>
+      <div class="footer-sub">
+        Saket Gyanpeeth College / Pramod Ram Ujagar Tiwari Saket Institute of Management (Affiliated to University of Mumbai) | A.Y. 2026-2028
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

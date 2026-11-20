@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 860px; margin: 0 auto;">
+  <div class="dashboard-header">
+    <div class="dashboard-title">
+      <h2>{% if is_edit %}Edit Job Posting: {{ form_data.title }}{% else %}Post New Fresher Job Vacancy{% endif %}</h2>
+      <p>Configure job specifications and required skill criteria used by the matching engine</p>
+    </div>
+    <a href="{{ url_for('admin_manage_jobs') }}" class="btn btn-secondary btn-sm">
+      &larr; Back to Job List
+    </a>
+  </div>
+
+  <div class="card">
+    <form method="POST">
+      <!-- Core Job Details -->
+      <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.4rem;">
+        🏢 1. Job Role &amp; Company
+      </h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="title" class="form-label">Job Title <span class="req">*</span></label>
+          <input 
+            type="text" 
+            id="title" 
+            name="title" 
+            class="form-control" 
+            placeholder="e.g. Junior Python / Backend Developer" 
+            value="{{ form_data.title or '' }}"
+            required
+            autofocus
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="company" class="form-label">Company Name <span class="req">*</span></label>
+          <input 
+            type="text" 
+            id="company" 
+            name="company" 
+            class="form-control" 
+            placeholder="e.g. TechNova Solutions" 
+            value="{{ form_data.company or '' }}"
+            required
+          >
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="location" class="form-label">Job Location</label>
+          <input 
+            type="text" 
+            id="location" 
+            name="location" 
+            class="form-control" 
+            placeholder="e.g. Mumbai, Maharashtra (Hybrid)" 
+            value="{{ form_data.location or '' }}"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="role_category" class="form-label">Role Category / Domain</label>
+          <select id="role_category" name="role_category" class="form-control">
+            {% set categories = ['Backend Development', 'Frontend Development', 'Software Engineering', 'Full Stack Development', 'Data & Analytics', 'Quality Assurance', 'Cloud & DevOps', 'Mobile Development', 'General IT'] %}
+            {% for cat in categories %}
+              <option value="{{ cat }}" {% if form_data.role_category == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="job_type" class="form-label">Employment Type</label>
+          <select id="job_type" name="job_type" class="form-control">
+            <option value="Full-time" {% if form_data.job_type == 'Full-time' %}selected{% endif %}>Full-time</option>
+            <option value="Internship" {% if form_data.job_type == 'Internship' %}selected{% endif %}>Internship</option>
+            <option value="Trainee" {% if form_data.job_type == 'Trainee' %}selected{% endif %}>Graduate Trainee</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="experience_req" class="form-label">Experience Requirement</label>
+          <input 
+            type="text" 
+            id="experience_req" 
+            name="experience_req" 
+            class="form-control" 
+            placeholder="e.g. Fresher (0-1 year)" 
+            value="{{ form_data.experience_req or 'Fresher' }}"
+          >
+        </div>
+      </div>
+
+      <!-- Required Skill Criteria (Critical for Rule Matching) -->
+      <h3 style="font-size: 1.1rem; color: var(--primary); margin-top: 1.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.4rem;">
+        🎯 2. Required Skill Criteria (Rule Matching Engine)
+      </h3>
+
+      <div class="form-group">
+        <label for="skills-input" class="form-label">
+          Required Skills Tags (Comma-separated) <span class="req">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="skills-input" 
+          name="required_skills" 
+          class="form-control" 
+          placeholder="e.g. Python, Flask, SQL, REST APIs, Git, Docker" 
+          value="{{ form_data.required_skills or '' }}"
+          required
+        >
+        <div class="form-text">
+          ⚠️ Crucial: The rule matching engine calculates <code>Match Score (%) = (Matched Skills / Required Skills) &times; 100</code>.
+        </div>
+      </div>
+
+      <!-- Visual Tags Display -->
+      <div style="margin-bottom: 1rem;">
+        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">
+          ACTIVE REQUIRED SKILL TAGS (Click &times; to remove):
+        </div>
+        <div id="skill-tags-display" class="skill-tags">
+          <!-- Rendered dynamically by main.js -->
+        </div>
+      </div>
+
+      <!-- Quick Add Skill Helpers -->
+      <div style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem 1rem; margin-bottom: 1.5rem;">
+        <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.5rem;">
+          ⚡ Click below to insert common required technical skills:
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.45rem;">
+          {% set popular_skills = ['Python', 'Flask', 'Django', 'Java', 'Spring Boot', 'JavaScript', 'React', 'HTML5', 'CSS3', 'SQL', 'PostgreSQL', 'SQLite', 'Git', 'Docker', 'AWS', 'Linux', 'Pandas', 'Selenium', 'REST APIs', 'PowerBI', 'Flutter'] %}
+          {% for s in popular_skills %}
+            <button type="button" class="badge badge-neutral quick-skill-pill" data-skill="{{ s }}" style="cursor: pointer; border: 1px solid #cbd5e1;">
+              + {{ s }}
+            </button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Academic & Description Information -->
+      <h3 style="font-size: 1.1rem; color: var(--primary); margin-top: 1.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.4rem;">
+        📄 3. Description, Eligibility &amp; Contact
+      </h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="education_req" class="form-label">Required Education / Degree <span class="req">*</span></label>
+          <input 
+            type="text" 
+            id="education_req" 
+            name="education_req" 
+            class="form-control" 
+            placeholder="e.g. BCA / MCA / B.Sc CS / B.Tech in IT or Computer Science" 
+            value="{{ form_data.education_req or '' }}"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="contact_email" class="form-label">HR / Application Email</label>
+          <input 
+            type="email" 
+            id="contact_email" 
+            name="contact_email" 
+            class="form-control" 
+            placeholder="e.g. careers@company.com" 
+            value="{{ form_data.contact_email or '' }}"
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description" class="form-label">Job Description <span class="req">*</span></label>
+        <textarea 
+          id="description" 
+          name="description" 
+          class="form-control" 
+          rows="4" 
+          placeholder="Detailed description of the role, team, and company culture..."
+          required
+        >{{ form_data.description or '' }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="responsibilities" class="form-label">Key Responsibilities (One per line)</label>
+        <textarea 
+          id="responsibilities" 
+          name="responsibilities" 
+          class="form-control" 
+          rows="3" 
+          placeholder="• Design and implement backend endpoints using Python & Flask&#10;• Write clean SQL queries&#10;• Collaborate with agile team..."
+        >{{ form_data.responsibilities or '' }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="eligibility_notes" class="form-label">Additional Eligibility Criteria</label>
+        <input 
+          type="text" 
+          id="eligibility_notes" 
+          name="eligibility_notes" 
+          class="form-control" 
+          placeholder="e.g. Minimum 60% aggregate in graduation; 2025/2026 batches eligible" 
+          value="{{ form_data.eligibility_notes or '' }}"
+        >
+      </div>
+
+      {% if is_edit %}
+        <div class="form-group" style="margin-top: 1rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 600;">
+            <input type="checkbox" name="is_active" {% if form_data.is_active %}checked{% endif %}>
+            <span>Publish Job Listing (Active on Student Portal)</span>
+          </label>
+        </div>
+      {% endif %}
+
+      <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        <button type="submit" class="btn btn-primary btn-lg" style="flex: 1;">
+          {% if is_edit %}💾 Update Job Specifications{% else %}🚀 Publish Fresher Job Vacancy{% endif %}
+        </button>
+        <a href="{{ url_for('admin_manage_jobs') }}" class="btn btn-secondary btn-lg">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 860px; margin: 0 auto;">
+  <div class="dashboard-header">
+    <div class="dashboard-title">
+      <h2>Candidate Profile &amp; Skill Set</h2>
+      <p>Keep your technical skills and education updated to ensure accurate matching against industry vacancies</p>
+    </div>
+    <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary btn-sm">
+      &larr; Back to Dashboard
+    </a>
+  </div>
+
+  <div class="card">
+    <form method="POST" action="{{ url_for('student_profile') }}">
+      
+      <!-- Academic Information -->
+      <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.4rem;">
+        🎓 1. Academic Credentials
+      </h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="degree" class="form-label">Degree / Program <span class="req">*</span></label>
+          <input 
+            type="text" 
+            id="degree" 
+            name="degree" 
+            class="form-control" 
+            placeholder="e.g. MCA (Master of Computer Application)" 
+            value="{{ profile.degree or '' }}"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="field_of_study" class="form-label">Specialization / Branch</label>
+          <input 
+            type="text" 
+            id="field_of_study" 
+            name="field_of_study" 
+            class="form-control" 
+            placeholder="e.g. Computer Applications & Software Engineering" 
+            value="{{ profile.field_of_study or '' }}"
+          >
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="college" class="form-label">College / Institute Name <span class="req">*</span></label>
+          <input 
+            type="text" 
+            id="college" 
+            name="college" 
+            class="form-control" 
+            placeholder="e.g. Saket Gyanpeeth College / Saket Institute of Management" 
+            value="{{ profile.college or '' }}"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="graduation_year" class="form-label">Graduation / Passing Year</label>
+          <input 
+            type="number" 
+            id="graduation_year" 
+            name="graduation_year" 
+            class="form-control" 
+            min="2020" 
+            max="2030" 
+            value="{{ profile.graduation_year or 2026 }}"
+          >
+        </div>
+      </div>
+
+      <!-- Career Target -->
+      <h3 style="font-size: 1.1rem; color: var(--primary); margin-top: 1.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.4rem;">
+        🎯 2. Career Target &amp; Experience
+      </h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="target_role" class="form-label">Desired Entry-Level Job Role <span class="req">*</span></label>
+          <input 
+            type="text" 
+            id="target_role" 
+            name="target_role" 
+            class="form-control" 
+            placeholder="e.g. Junior Python / Backend Developer" 
+            value="{{ profile.target_role or '' }}"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="experience_level" class="form-label">Current Experience Level</label>
+          <select id="experience_level" name="experience_level" class="form-control">
+            <option value="Fresher (0 years)" {% if profile.experience_level == 'Fresher (0 years)' %}selected{% endif %}>Fresher (0 years)</option>
+            <option value="Internship Experience (3-6 months)" {% if profile.experience_level == 'Internship Experience (3-6 months)' %}selected{% endif %}>Internship Experience (3-6 months)</option>
+            <option value="Entry Level (6-12 months)" {% if profile.experience_level == 'Entry Level (6-12 months)' %}selected{% endif %}>Entry Level (6-12 months)</option>
+            <option value="Junior (1+ years)" {% if profile.experience_level == 'Junior (1+ years)' %}selected{% endif %}>Junior (1+ years)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Technical Skills Interactive Input -->
+      <h3 style="font-size: 1.1rem; color: var(--primary); margin-top: 1.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.4rem;">
+        💻 3. Technical Skills (Rule-Matching Input)
+      </h3>
+
+      <div class="form-group">
+        <label for="skills-input" class="form-label">
+          Your Technical Skills (Comma-separated) <span class="req">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="skills-input" 
+          name="skills" 
+          class="form-control" 
+          placeholder="e.g. Python, Flask, HTML5, CSS3, JavaScript, SQLite, Git" 
+          value="{{ profile.skills or '' }}"
+          required
+        >
+        <div class="form-text">
+          Our matching engine parses this list and compares each skill with job vacancy requirements.
+        </div>
+      </div>
+
+      <!-- Visual Tags Display -->
+      <div style="margin-bottom: 1rem;">
+        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">
+          ACTIVE SKILL TAGS (Click &times; to remove):
+        </div>
+        <div id="skill-tags-display" class="skill-tags">
+          <!-- Rendered dynamically by main.js -->
+        </div>
+      </div>
+
+      <!-- Quick Add Skill Helpers -->
+      <div style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem 1rem; margin-bottom: 1.5rem;">
+        <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.5rem;">
+          ⚡ Click any popular skill below to add it instantly:
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.45rem;">
+          {% set popular_skills = ['Python', 'Flask', 'Django', 'Java', 'Spring Boot', 'JavaScript', 'React', 'HTML5', 'CSS3', 'SQL', 'PostgreSQL', 'SQLite', 'Git', 'Docker', 'AWS', 'Linux', 'Pandas', 'Selenium', 'REST APIs', 'PowerBI', 'Flutter'] %}
+          {% for s in popular_skills %}
+            <button type="button" class="badge badge-neutral quick-skill-pill" data-skill="{{ s }}" style="cursor: pointer; border: 1px solid #cbd5e1;">
+              + {{ s }}
+            </button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Candidate Bio / Summary -->
+      <div class="form-group">
+        <label for="bio" class="form-label">Brief Professional Summary / Bio</label>
+        <textarea 
+          id="bio" 
+          name="bio" 
+          class="form-control" 
+          rows="3" 
+          placeholder="Write a brief overview of your projects, academic achievements, and career aspirations..."
+        >{{ profile.bio or '' }}</textarea>
+      </div>
+
+      <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        <button type="submit" class="btn btn-primary btn-lg" style="flex: 1;">
+          💾 Save Profile &amp; Recalculate Matches
+        </button>
+        <a href="{{ url_for('student_jobs') }}" class="btn btn-secondary btn-lg">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

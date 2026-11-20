@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-header">
+  <div class="dashboard-title">
+    <h2>Fresher Job Vacancies &amp; Match Rankings</h2>
+    <p>Jobs sorted transparently based on your current technical skill alignment</p>
+  </div>
+  <div>
+    <a href="{{ url_for('student_profile') }}" class="btn btn-secondary btn-sm">
+      ✏️ Update My Skills
+    </a>
+  </div>
+</div>
+
+<!-- Candidate Skills Reminder Bar -->
+<div class="card" style="padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; background: #ffffff;">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+    <div style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+      <span style="font-weight: 700; color: var(--text-main);">Evaluating with your skills:</span>
+      {% if cand_skills %}
+        {% for s in cand_skills.split(',') %}
+          {% if s.strip() %}
+            <span class="badge badge-primary">{{ s.strip() }}</span>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <span style="color: var(--danger); font-weight: 600;">No skills specified in your profile yet!</span>
+      {% endif %}
+    </div>
+    <a href="{{ url_for('student_profile') }}" style="font-size: 0.82rem; color: var(--primary); font-weight: 600; text-decoration: none;">
+      Edit Skill List &rarr;
+    </a>
+  </div>
+</div>
+
+<!-- Filter & Search Toolbar -->
+<div class="filter-toolbar">
+  <form method="GET" action="{{ url_for('student_jobs') }}" class="filter-form">
+    <div style="flex: 1; min-width: 220px;">
+      <input 
+        type="text" 
+        name="q" 
+        class="form-control" 
+        placeholder="Search job title, company, or skill..." 
+        value="{{ search_query }}"
+      >
+    </div>
+
+    <div>
+      <select name="category" class="form-control" onchange="this.form.submit()">
+        {% for cat in categories %}
+          <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <select name="sort" class="form-control" onchange="this.form.submit()">
+        <option value="match" {% if sort_by == 'match' %}selected{% endif %}>Sort: Highest Match First</option>
+        <option value="recent" {% if sort_by == 'recent' %}selected{% endif %}>Sort: Most Recent Postings</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Filter</button>
+    {% if search_query or selected_category != 'All' or sort_by != 'match' %}
+      <a href="{{ url_for('student_jobs') }}" class="btn btn-secondary">Clear</a>
+    {% endif %}
+  </form>
+</div>
+
+<!-- Job Cards List -->
+{% if jobs %}
+  <div class="job-grid">
+    {% for job in jobs %}
+      <div class="job-card">
+        <div>
+          <div class="job-card-header">
+            <div>
+              <div class="job-title">{{ job.title }}</div>
+              <div class="job-company">🏢 {{ job.company }}</div>
+              <div class="job-location">📍 {{ job.location }}</div>
+            </div>
+            <span class="badge badge-neutral">{{ job.role_category }}</span>
+          </div>
+
+          <div class="job-meta-row">
+            <span class="meta-pill">🎓 {{ job.education_req }}</span>
+            <span class="meta-pill">💼 {{ job.job_type }}</span>
+            <span class="meta-pill">⏱️ {{ job.experience_req }}</span>
+          </div>
+
+          <!-- Match Score Visual Progress Box -->
+          <div class="match-preview-box">
+            <div class="match-preview-header">
+              <span>Candidate Match:</span>
+              <span class="match-score-badge {{ job.badge_class }}">
+                {{ job.match_score }}% Match
+              </span>
+            </div>
+            <div class="progress-container">
+              <div class="progress-bar {{ job.badge_class }}" style="width: {{ job.match_score }}%;"></div>
+            </div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.3rem;">
+              {{ job.summary_text }}
+            </div>
+          </div>
+
+          <!-- Matched and Missing Skills Comparison -->
+          <div style="margin-top: 0.75rem; font-size: 0.8rem;">
+            {% if job.matched_skills %}
+              <div style="margin-bottom: 0.35rem;">
+                <span style="font-weight: 600; color: var(--success-dark);">Matched ({{ job.matched_skills|length }}):</span>
+                <div class="skill-tags">
+                  {% for s in job.matched_skills %}
+                    <span class="badge badge-success">✓ {{ s }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+
+            {% if job.missing_skills %}
+              <div>
+                <span style="font-weight: 600; color: var(--danger-dark);">Missing ({{ job.missing_skills|length }}):</span>
+                <div class="skill-tags">
+                  {% for s in job.missing_skills %}
+                    <span class="badge badge-danger">✗ {{ s }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="job-card-actions">
+          <a href="{{ url_for('student_job_detail', job_id=job.id) }}" class="btn btn-primary btn-sm" style="flex: 1;">
+            View Detailed Match &amp; Guidance &rarr;
+          </a>
+          <form method="POST" action="{{ url_for('student_toggle_save_job', job_id=job.id) }}">
+            <button type="submit" class="btn btn-secondary btn-sm" title="Bookmark Job">
+              🔖
+            </button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card" style="text-align: center; padding: 3rem;">
+    <div style="font-size: 3rem; margin-bottom: 0.5rem;">🔍</div>
+    <h3>No matching job vacancies found</h3>
+    <p style="color: var(--text-muted); margin: 0.5rem 0 1.5rem 0;">
+      Try adjusting your search criteria or clearing filters.
+    </p>
+    <a href="{{ url_for('student_jobs') }}" class="btn btn-primary">Reset All Filters</a>
+  </div>
+{% endif %}
+{% endblock %}

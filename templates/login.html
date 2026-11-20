@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="card">
+    <div class="card-header" style="justify-content: center; flex-direction: column; text-align: center; border-bottom: none; margin-bottom: 0.5rem;">
+      <h2 style="font-size: 1.5rem; font-weight: 800;">Welcome Back</h2>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 0.25rem;">
+        Sign in to your Fresher Job &amp; Skill Guidance account
+      </p>
+    </div>
+
+    <form method="POST" action="{{ url_for('login', next=request.args.get('next')) }}">
+      <div class="form-group">
+        <label for="email" class="form-label">Email Address <span class="req">*</span></label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          class="form-control" 
+          placeholder="e.g. dhammadip@student.ac.in" 
+          value="{{ email or '' }}" 
+          required 
+          autofocus
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Password <span class="req">*</span></label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          class="form-control" 
+          placeholder="••••••••" 
+          required
+        >
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 1rem;">
+        Sign In &rarr;
+      </button>
+    </form>
+
+    <!-- Demo Credentials Helper Card -->
+    <div class="demo-credentials-box">
+      <div style="font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">
+        🔑 Quick Demo Credentials (Click to Autofill):
+      </div>
+      <div style="color: var(--text-muted); font-size: 0.78rem;">
+        Use these pre-configured accounts for testing &amp; evaluation:
+      </div>
+      <div class="demo-btn-row">
+        <button type="button" id="btn-fill-student" class="btn btn-secondary btn-sm" style="flex: 1;">
+          🎓 Fill Student (Dhammadip)
+        </button>
+        <button type="button" id="btn-fill-admin" class="btn btn-secondary btn-sm" style="flex: 1;">
+          ⚙️ Fill Admin
+        </button>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 1.5rem; font-size: 0.88rem; color: var(--text-muted);">
+      Don't have an account yet? 
+      <a href="{{ url_for('register') }}" style="color: var(--primary); font-weight: 600; text-decoration: none;">
+        Register as Student
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

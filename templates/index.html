@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-content">
+    <span class="hero-tag">MCA Mini Project • University of Mumbai</span>
+    <h1>Bridge The Gap Between Graduation &amp; Your Dream Job</h1>
+    <p>
+      A transparent, rule-based career guidance platform designed for freshers. 
+      Input your educational background and skills, instantly view job match percentages, 
+      and receive structured guidance to bridge missing skill gaps.
+    </p>
+    <div class="hero-actions">
+      {% if is_authenticated and is_student %}
+        <a href="{{ url_for('student_jobs') }}" class="btn btn-primary btn-lg">Explore Job Matches &rarr;</a>
+        <a href="{{ url_for('student_profile') }}" class="btn btn-secondary btn-lg">Update My Skills</a>
+      {% elif is_authenticated and is_admin %}
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary btn-lg">Go to Admin Dashboard &rarr;</a>
+        <a href="{{ url_for('admin_create_job') }}" class="btn btn-secondary btn-lg">Post New Job Vacancy</a>
+      {% else %}
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Get Started as Student &rarr;</a>
+        <a href="{{ url_for('login') }}" class="btn btn-secondary btn-lg">Sign In (Student / Admin)</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- System Statistics Counters -->
+<section class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon primary">💼</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ stats.total_jobs }}</div>
+      <div class="stat-label">Fresher Jobs Listed</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon success">🎓</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ stats.total_students }}</div>
+      <div class="stat-label">Registered Students</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon warning">🎯</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ stats.categories_count }}</div>
+      <div class="stat-label">Role Domains</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon secondary">⚡</div>
+    <div class="stat-info">
+      <div class="stat-value">100%</div>
+      <div class="stat-label">Rule-Based Transparent Logic</div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works / 3-Tier Architecture Flow -->
+<section class="card" style="margin-bottom: 2.5rem;">
+  <div class="card-header">
+    <div>
+      <h3 class="card-title">How The Rule-Based Matching System Works</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">
+        Deterministic, transparent evaluation replacing ambiguous job searches with structured feedback.
+      </p>
+    </div>
+    <span class="badge badge-primary">3-Tier Architecture</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+    <div style="background: var(--bg-main); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+      <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">📝 1. Profile Creation</div>
+      <h4 style="font-size: 1rem; margin-bottom: 0.4rem;">Enter Academic &amp; Technical Skills</h4>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">
+        Graduates build profile records with their degree, college, passing year, and technical skills (Python, SQL, HTML, etc.).
+      </p>
+    </div>
+
+    <div style="background: var(--bg-main); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+      <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">⚙️ 2. Rule Matching</div>
+      <h4 style="font-size: 1rem; margin-bottom: 0.4rem;">Deterministic Comparison</h4>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">
+        Backend systematically parses candidate skills and compares them against employer job criteria stored in SQLite.
+      </p>
+    </div>
+
+    <div style="background: var(--bg-main); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+      <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">📊 3. Match Score (%)</div>
+      <h4 style="font-size: 1rem; margin-bottom: 0.4rem;">Mathematical Formula</h4>
+      <p style="font-size: 0.85rem; color: var(--text-muted); font-family: monospace;">
+        Score (%) = (Matched Skills / Required Skills) &times; 100
+      </p>
+    </div>
+
+    <div style="background: var(--bg-main); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+      <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">💡 4. Skill Gap Guidance</div>
+      <h4 style="font-size: 1rem; margin-bottom: 0.4rem;">Actionable Learning Path</h4>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">
+        Unmatched skills are isolated and paired with curated free learning resources and hands-on mini-project ideas.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Job Vacancies -->
+<section>
+  <div class="dashboard-header">
+    <div class="dashboard-title">
+      <h2>Recent Fresher Openings</h2>
+      <p>Targeted entry-level opportunities across Software, Backend, Frontend, Cloud &amp; QA</p>
+    </div>
+    {% if is_authenticated and is_student %}
+      <a href="{{ url_for('student_jobs') }}" class="btn btn-outline-primary btn-sm">View All {{ stats.total_jobs }} Jobs &rarr;</a>
+    {% else %}
+      <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Sign Up to Calculate Match Score</a>
+    {% endif %}
+  </div>
+
+  <div class="job-grid">
+    {% for job in featured_jobs %}
+      <div class="job-card">
+        <div>
+          <div class="job-card-header">
+            <div>
+              <div class="job-title">{{ job.title }}</div>
+              <div class="job-company">🏢 {{ job.company }}</div>
+              <div class="job-location">📍 {{ job.location }}</div>
+            </div>
+            <span class="badge badge-neutral">{{ job.role_category }}</span>
+          </div>
+
+          <div class="job-meta-row">
+            <span class="meta-pill">🎓 {{ job.education_req }}</span>
+            <span class="meta-pill">⏱️ {{ job.experience_req }}</span>
+          </div>
+
+          <!-- If student logged in, show match score bar -->
+          {% if job.match_score is defined %}
+            <div class="match-preview-box">
+              <div class="match-preview-header">
+                <span>Suitability Match:</span>
+                <span class="match-score-badge {{ job.badge_class }}">
+                  {{ job.match_score }}% Match
+                </span>
+              </div>
+              <div class="progress-container">
+                <div class="progress-bar {{ job.badge_class }}" style="width: {{ job.match_score }}%;"></div>
+              </div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.3rem;">
+                {{ job.summary_text }}
+              </div>
+            </div>
+          {% endif %}
+
+          <div style="margin-top: 0.75rem;">
+            <div style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.3rem;">
+              REQUIRED SKILLS:
+            </div>
+            <div class="skill-tags">
+              {% for s in job.required_skills.split(',') %}
+                <span class="badge badge-neutral">{{ s.strip() }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div class="job-card-actions">
+          {% if is_authenticated and is_student %}
+            <a href="{{ url_for('student_job_detail', job_id=job.id) }}" class="btn btn-primary btn-sm btn-block">
+              View Detailed Match &amp; Skill Guidance &rarr;
+            </a>
+          {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-sm btn-block">
+              Sign In to View Full Evaluation
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Academic Project Details Section -->
+<section class="card" style="margin-top: 1rem; border-color: #cbd5e1; background: #ffffff;">
+  <div class="card-header">
+    <h3 class="card-title">About This Academic Mini Project</h3>
+    <span class="badge badge-neutral">A.Y. 2026-2028</span>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; font-size: 0.9rem;">
+    <div>
+      <p><strong>Project Title:</strong> Fresher Job and Skill Guidance Portal</p>
+      <p><strong>Candidate:</strong> Dhammadip Harshabodh Shirsath (Roll No: 47)</p>
+      <p><strong>Degree:</strong> Master of Computer Application (MCA)</p>
+      <p><strong>Guide:</strong> Mrs. Sandhya Kapil Thakkar</p>
+    </div>
+    <div>
+      <p><strong>Institution:</strong> Saket Gyanpeeth College / Saket Institute of Management</p>
+      <p><strong>University:</strong> University of Mumbai, Maharashtra</p>
+      <p><strong>Technology Stack:</strong> Python Flask, HTML5, CSS3, JavaScript, SQLite</p>
+      <p><strong>Methodology:</strong> Deterministic Rule-Based Skill Gap Analysis</p>
+    </div>
+  </div>
+</section>
+{% endblock %}
